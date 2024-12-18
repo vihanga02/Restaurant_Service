@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const foodRoutes = require('./foodRoutes');
-const customerRoutes = require('./customerRoutes');
-const orderRoutes = require('./orderRoutes');
-const adminRoutes = require('./adminRoutes');
+const foodRoutes = require('./foodRoute');
+const customerRoutes = require('./customerRoute');
+const orderRoutes = require('./orderRoute');
+const adminRoutes = require('./adminRoute');
 
 router.use('/foods', foodRoutes); // All food-related routes
 router.use('/customers', customerRoutes); // All customer-related routes
