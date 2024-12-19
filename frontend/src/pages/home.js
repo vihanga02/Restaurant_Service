@@ -6,9 +6,9 @@ import home3 from "../assets/home3.jpg";
 
 const Home = () => {
     return (
-        <div className="container mx-auto p-4 mt-16 flex flex-col justify-between w-screen">
+        <div className="bg-gray-50 mb-10 container mx-auto p-4 mt-16 flex flex-col justify-between w-screen">
             <div className="w-full flex justify-between">
-                <div className="w-1/2 p-10 pt-32 md:pt-56 flex flex-col justify-center">
+                <div className="w-1/2 p-10 md:pt-28 flex flex-col justify-center">
                     <h1 className="text-5xl font-black mb-1 font-serif text-orange-800 bg-orange-200 p-5 text-center lg:text-6xl">Less Waiting.</h1>
                     <h1 className="text-5xl font-black font-serif text-orange-900 bg-orange-100 p-5 text-center lg:text-6xl">More EATING.</h1>
                 </div>

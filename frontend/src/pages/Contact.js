@@ -4,7 +4,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const ContactUs = () => {
     return (
-        <div className="mt-5 min-h-screen">
+        <div className="mt-5 min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 py-16">
                 {/* Header Section */}
                 <div className="text-center mb-8">
