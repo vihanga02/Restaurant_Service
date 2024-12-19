@@ -1,36 +1,55 @@
 const Order = require('../models/order');
+const Food = require('../models/food');
+const Customer = require('../models/customer');
 
-// Place a new order
-exports.placeOrder = async (req, res) => {
+exports.addToCart = async (req, res) => {
   try {
-    const newOrder = new Order(req.body);
-    await newOrder.save();
-    res.status(201).json(newOrder);
-  } catch (err) {
-    res.status(400).json({ error: 'Failed to place order' });
-  }
-};
+      const { foodId, quantity } = req.body;
+      const customerId = req.user.id; 
 
-// Add new food items to the current order
-exports.addFoodItemsToOrder = async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-    const newFoodItems = req.body.foodItems;
-    order.foodItems.push(...newFoodItems);
-    await order.save();
-    res.status(200).json(order);
+      let customer = await Customer.findById(customerId);
+      let order = await Order.findOne({ customerId, status: "Pending" });
+
+      if (!order) {
+          order = new Order({
+              customerId: customer._id,
+              customerName: customer.name,
+              email: customer.email,
+              deliveryAddress: customer.address,
+              phone: customer.phone,
+              foodItems: [],
+              totalPrice: 0,
+              status: "Pending",
+          });
+      }
+
+      const existingItem = order.foodItems.find(item => item.item.toString() === foodId);
+
+      if (existingItem) {
+          existingItem.quantity += quantity;
+      } else {
+          order.foodItems.push({ item: foodId, quantity });
+      }
+
+      const foodItem = await Food.findById(foodId);
+      if (!foodItem) {
+          return res.status(404).json({ error: "Food item not found" });
+      }
+      order.totalPrice += foodItem.price * quantity;
+
+      await order.save();
+
+      res.status(200).json({ message: "Item added to cart", order });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to add food items to order' });
+      console.error("Error adding to cart:", err);
+      res.status(500).json({ error: "Failed to add item to cart" });
   }
 };
 
 // Get all orders for a customer
 exports.getCustomerOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ customer: req.params.customerId }).populate('foodItems.item');
+    const orders = await Order.find({ customerId: req.user.id }).populate('foodItems.item');
     res.status(200).json(orders);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch orders' });

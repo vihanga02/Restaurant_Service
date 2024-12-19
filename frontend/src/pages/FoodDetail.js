@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const FoodDetails = () => {
     const { id } = useParams(); // Get the food ID from the route params
     const navigate = useNavigate();
     const [food, setFood] = useState(null);
     const [quantity, setQuantity] = useState(1);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchFoodDetails = async () => {
@@ -16,7 +17,6 @@ const FoodDetails = () => {
                 setFood(response.data);
             } catch (err) {
                 console.error('Error fetching food details:', err);
-                setError('Failed to fetch food details.');
             }
         };
 
@@ -28,16 +28,19 @@ const FoodDetails = () => {
     };
 
     const handleAddToCart = () => {
-        console.log(`Added ${quantity} x ${food.name} to cart`);
+        axios.post("http://localhost:8000/api/orders/", {foodId: id, quantity} , { withCredentials: true})
+            .then((response) => {
+                toast.success('Food added to cart successfully!');
+            })
+            .catch((err) => {
+                console.error("Error adding food to cart:", err);
+                toast.error("Failed to add food to cart.");
+            });
     };
 
     const handleQuantityChange = (change) => {
         setQuantity((prev) => Math.max(1, prev + change));
     };
-
-    if (error) {
-        return <div className="text-center text-red-600 mt-20">{error}</div>;
-    }
 
     if (!food) {
         return <div className="text-center text-gray-600 mt-20">Loading food details...</div>;
@@ -45,6 +48,8 @@ const FoodDetails = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen p-8 mt-20">
+            <ToastContainer position="top-right" autoClose={3000} />
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-20 px-14 ">
                 <img
                     src={food.imageUrl}

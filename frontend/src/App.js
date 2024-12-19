@@ -14,7 +14,8 @@ import Signup from "./pages/Signup";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FoodDetails from "./pages/FoodDetail";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function AppContent() {
             <Route path="/food-details/:id" element={<FoodDetails />} />
           </Routes>
         </main>
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
       {!hideNavbarFooter && <Footer />}
     </>

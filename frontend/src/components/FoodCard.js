@@ -1,7 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const ContactCard = ({ item, onAddToCart }) => {
+const FoodCard = ({ item, onAddToCart }) => {
     const navigate = useNavigate();
 
     const capitalizeName = (name) => {
@@ -12,11 +15,24 @@ const ContactCard = ({ item, onAddToCart }) => {
         navigate(`/food-details/${item._id}`); 
     };
 
+    const handleAddToCart = () => {
+        axios.post("http://localhost:8000/api/orders/", { foodId: item._id, quantity: 1 }, { withCredentials: true })
+            .then((response) => {
+                toast.success('Food added to cart successfully!');
+            })
+            .catch((err) => {
+                console.error("Error adding food to cart:", err);
+                toast.error("Failed to add food to cart.");
+            });
+    };
+
     return (
         <div
             className="bg-gray-50 rounded-lg shadow p-4 text-center hover:shadow-xl hover:scale-105 transition-transform duration-200 cursor-pointer"
             onClick={handleCardClick}
         >
+            <ToastContainer position="top-right" autoClose={3000} />
+            
             <img
                 src={item.imageUrl}
                 alt={item.name}
@@ -27,7 +43,7 @@ const ContactCard = ({ item, onAddToCart }) => {
             <button
                 onClick={(e) => {
                     e.stopPropagation(); 
-                    onAddToCart(item);
+                    handleAddToCart();
                 }}
                 className="mt-4 px-4 py-2 bg-yellow-600 text-white font-bold rounded hover:bg-yellow-700 transition-colors duration-200"
             >
@@ -37,4 +53,4 @@ const ContactCard = ({ item, onAddToCart }) => {
     );
 };
 
-export default ContactCard;
+export default FoodCard;

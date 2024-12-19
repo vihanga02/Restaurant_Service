@@ -66,7 +66,6 @@ exports.getCustomers = async (req, res) => {
 exports.getCustomerProfile = async (req, res) => {
   try {
     const customer = await Customer.findById(req.user.id);
-    console.log(customer);
     if (!customer) {
       return res.status(404).json({ error: 'Customer not found' });
     }

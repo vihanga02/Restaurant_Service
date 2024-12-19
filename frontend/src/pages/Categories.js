@@ -68,7 +68,7 @@ const Categories = () => {
     return (
         <div className="">
             <img src={menu} alt="menu" className="w-full h-auto opacity-70" />
-            <h1 className="text-6xl font-black relative -top-52 left-96 ml-80 font-serif text-orange-800">
+            <h1 className="text-6xl w-fit font-black relative -top-52 left-96 ml-80 font-serif text-orange-800">
                 CATEGORIES
             </h1>
             <div className="mx-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

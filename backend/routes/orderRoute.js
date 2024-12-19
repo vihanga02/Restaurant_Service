@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controller/orderController');
+const authenticateToken = require('../middleware/authentication');
 
 
-router.post('/', orderController.placeOrder);
+router.post('/', authenticateToken("Customer"), orderController.addToCart);
 
-router.get('/customer/:customerId', orderController.getCustomerOrders);
+router.get('/customer',authenticateToken("Customer"), orderController.getCustomerOrders);
 
-router.put('/:id/cancel', orderController.cancelOrder);
+router.delete('/cancel/:id',authenticateToken("Customer"), orderController.cancelOrder);
 
-router.put('/:id/paid', orderController.markOrderAsPaid);
+router.post('/paid/:id',authenticateToken("Customer"), orderController.markOrderAsPaid);
 
 router.put('/:id/delivered', orderController.markOrderAsDelivered);
 
