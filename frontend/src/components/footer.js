@@ -42,10 +42,10 @@ const Footer = () => {
                     <div>
                         <h2 className="text-xl font-semibold text-yellow-500">Follow Us</h2>
                         <div className="mt-4 flex space-x-4 text-gray-400">
-                            <a href="#" className="hover:text-white"><FontAwesomeIcon icon={['fab', 'facebook']} /></a>
-                            <a href="#" className="hover:text-white"><FontAwesomeIcon icon={['fab', 'twitter']} /></a>
-                            <a href="#" className="hover:text-white"><FontAwesomeIcon icon={['fab', 'instagram']} /></a>
-                            <a href="#" className="hover:text-white"><FontAwesomeIcon icon={['fab', 'youtube']} /></a>
+                            <a href="#" className="hover:text-orange-300"><FontAwesomeIcon icon={['fab', 'facebook']} /></a>
+                            <a href="#" className="hover:text-orange-300"><FontAwesomeIcon icon={['fab', 'twitter']} /></a>
+                            <a href="#" className="hover:text-orange-300"><FontAwesomeIcon icon={['fab', 'instagram']} /></a>
+                            <a href="#" className="hover:text-orange-300"><FontAwesomeIcon icon={['fab', 'youtube']} /></a>
                         </div>
                     </div>
                 </div>
