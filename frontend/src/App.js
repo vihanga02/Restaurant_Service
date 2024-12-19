@@ -8,11 +8,13 @@ import Pasta from "./pages/Pasta";
 import Soup from "./pages/Soup";
 import Drinks from "./pages/Drink";
 import Desserts from "./pages/Dessert";
+import CustomerOrders from "./pages/Userpage";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FoodDetails from "./pages/FoodDetail";
+
 
 function App() {
   return (
@@ -40,6 +42,7 @@ function AppContent() {
             <Route path="/soup" element={<Soup />} />
             <Route path="/drinks" element={<Drinks />} />
             <Route path="/desserts" element={<Desserts />} />
+            <Route path="/orders" element={<CustomerOrders />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/food-details/:id" element={<FoodDetails />} />

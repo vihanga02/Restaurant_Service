@@ -11,6 +11,22 @@ exports.placeOrder = async (req, res) => {
   }
 };
 
+// Add new food items to the current order
+exports.addFoodItemsToOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    const newFoodItems = req.body.foodItems;
+    order.foodItems.push(...newFoodItems);
+    await order.save();
+    res.status(200).json(order);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add food items to order' });
+  }
+};
+
 // Get all orders for a customer
 exports.getCustomerOrders = async (req, res) => {
   try {

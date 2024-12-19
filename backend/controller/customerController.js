@@ -9,39 +9,68 @@ exports.registerCustomer = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newCustomer = new Customer({ ...otherDetails, password: hashedPassword });
         await newCustomer.save();
-        res.status(201).json({ customer: newCustomer, token });
+        res.status(201).json({ customer: newCustomer });
     } catch (err) {
+        console.log(err);
         res.status(400).json({ error: 'Failed to register customer' });
     }
 };
 
 // Login a customer (with token generation)
 exports.loginCustomer = async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
+  try {
+    const customer = await Customer.findOne({ email });
+    if (!customer) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    const isMatch = await bcrypt.compare(password, customer.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    const token = jwt.sign({ id: customer._id, role: "Customer" },  process.env.SECRET_KEY || "your_secret_key", { expiresIn: '1h' });
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+    res.status(200).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to login' });
+  }
+};
+
+exports.checkLogin = async (req, res) => {
+  try {
+    if (req.user) {
+      return res.status(200).json({ success: true });
+    } else {
+      return res.status(401).json({ success: false });
+    }
+  }
+  catch (err) {
+    res.status(500).json({ error: 'Failed to check login status' });
+  }
+}
+
+exports.getCustomers = async (req, res) => {
     try {
-        const customer = await Customer.findOne({ email });
-        if (!customer) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-        const isMatch = await bcrypt.compare(password, customer.password);
-        if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid credentials' });
-        }
-        const token = jwt.sign({ id: customer._id }, 'your_jwt_secret', { expiresIn: '1h' });
-        res.status(200).json({ customer, token });
+        const customers = await Customer.find();
+        res.status(200).json(customers);
     } catch (err) {
-        res.status(500).json({ error: 'Failed to login' });
+        res.status(500).json({ error: 'Failed to fetch customers' });
     }
 };
 
 // Get customer profile
 exports.getCustomerProfile = async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id);
+    const customer = await Customer.findById(req.user.id);
+    console.log(customer);
     if (!customer) {
       return res.status(404).json({ error: 'Customer not found' });
     }
-    res.status(200).json(customer);
+    return res.status(200).json({ customer: customer });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch customer profile' });
   }

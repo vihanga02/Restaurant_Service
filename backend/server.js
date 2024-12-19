@@ -3,16 +3,21 @@ const dotenv = require("dotenv").config(); // Load environment variables early
 const connectDb = require("./config/dbconfig.js");
 const cors = require("cors");
 const router = require("./routes/index.js");
+const cookieParser = require("cookie-parser");
+
 
 connectDb();
+require("dotenv").config();
 
 const app = express();
 
 app.use(cors({
     origin: 'http://localhost:3000',
+    credentials: true,
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api", router);
 

@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+const jwt = require("jsonwebtoken");
 const { verify } = jwt;
 
 const roleHierarchy = {
@@ -14,16 +14,14 @@ const authenticateToken = (requiredRole) => {
     }
 
     try {
-      const verified = verify(token, process.env.SECRET_KEY);
+      const verified = jwt.verify(token, process.env.SECRET_KEY || "your_secret_key");
       const role = verified.role;
 
-      // Check if the user's role allows access based on hierarchy
       if (
         roleHierarchy[role] >= roleHierarchy[requiredRole] &&
-        !(role !== "Customer" && requiredRole === "Customer") // Managers and Admins can't access customer routes
+        !(role !== "Customer" && requiredRole === "Customer") 
       ) {
         req.user = verified;
-        
         next();
       } else {
         res.status(403).json({ message: "Forbidden" });
@@ -35,4 +33,4 @@ const authenticateToken = (requiredRole) => {
   };
 };
 
-export default authenticateToken;
+module.exports = authenticateToken;

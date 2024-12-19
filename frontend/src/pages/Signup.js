@@ -1,42 +1,74 @@
 import React, { useState } from 'react';
-import image from '../assets/signup.jpg'; 
+import image from '../assets/signup.jpg';
 
 const Signup = () => {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        password: '',
+        repassword: ''
+    });
 
-    const [formData, setFormData] = useState({ name: '', email: '', password: '' });
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value
+        }));
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
-        setSuccess(false);
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
 
-        try {
-            // Replace with your backend API URL
-            const response = await fetch('http://localhost:8000/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
+    // Email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(formData.email)) {
+        setError('Invalid email format');
+        return;
+    }
 
-            const data = await response.json();
+    // Phone number validation
+    if (!/^\d{10}$/.test(formData.phone)) {
+        setError('Phone number must be 10 digits');
+        return;
+    }
+
+    // Password match validation
+    if (formData.password !== formData.repassword) {
+        setError('Passwords do not match');
+        return;
+    }
+
+    try {
+        // Create a new object without the repassword field
+        const { repassword, ...dataToSend } = formData;
+        console.log(JSON.stringify(dataToSend));
+
+        const response = await fetch('http://localhost:8000/api/customers/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataToSend),
+        });
+
+        const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to register');
             }
-
+    
             console.log('Registration successful:', data);
             setSuccess(true);
         } catch (err) {
             setError(err.message);
         }
-    };
+    }
 
     return (
         <div className="relative bg-gray-50 min-h-screen flex items-center justify-center">
@@ -63,7 +95,7 @@ const Signup = () => {
                             <a href="/login" className="text-yellow-600 font-bold">Login</a>.
                         </div>
                     )}
-                    
+
                     <div className="mb-4">
                         <label htmlFor="name" className="block text-gray-700 font-bold mb-2">
                             Name
@@ -95,14 +127,14 @@ const Signup = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-gray-700 font-bold mb-2">
+                        <label htmlFor="phone" className="block text-gray-700 font-bold mb-2">
                             Phone Number
                         </label>
                         <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
+                            type="text"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-600"
                             required
@@ -110,19 +142,20 @@ const Signup = () => {
                     </div>
 
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-gray-700 font-bold mb-2">
+                        <label htmlFor="address" className="block text-gray-700 font-bold mb-2">
                             Address
                         </label>
                         <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
+                            type="text"
+                            id="address"
+                            name="address"
+                            value={formData.address}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-600"
                             required
                         />
                     </div>
+
                     <div className="mb-4">
                         <label htmlFor="password" className="block text-gray-700 font-bold mb-2">
                             Password
@@ -137,15 +170,16 @@ const Signup = () => {
                             required
                         />
                     </div>
+
                     <div className="mb-4">
-                        <label htmlFor="password" className="block text-gray-700 font-bold mb-2">
+                        <label htmlFor="repassword" className="block text-gray-700 font-bold mb-2">
                             Re-Enter Password
                         </label>
                         <input
                             type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
+                            id="repassword"
+                            name="repassword"
+                            value={formData.repassword}
                             onChange={handleChange}
                             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-600"
                             required

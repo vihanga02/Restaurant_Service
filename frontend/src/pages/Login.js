@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import image from '../assets/Login.jpg';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
@@ -11,11 +14,11 @@ const Login = () => {
         setError(null);
 
         try {
-            // Replace with your backend API URL
-            const response = await fetch('http://localhost:8000/api/login', {
+            const response = await fetch('http://localhost:8000/api/customers/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
+                credentials: 'include', 
             });
 
             const data = await response.json();
@@ -23,9 +26,8 @@ const Login = () => {
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to login');
             }
-
-            console.log('Login successful:', data);
-            // Redirect or save token logic here
+            
+            navigate('/');
         } catch (err) {
             setError(err.message);
         }
