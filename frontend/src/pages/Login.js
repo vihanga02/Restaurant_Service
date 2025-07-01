@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import image from '../assets/Login.jpg';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -14,16 +15,16 @@ const Login = () => {
         setError(null);
 
         try {
-            const response = await fetch('http://localhost:8000/api/customers/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include', 
-            });
+            const response = await axios.post('http://localhost:8000/api/customers/login', 
+                { email, password },
+                { 
+                    withCredentials: true,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+            const data = response.data;
 
-            const data = await response.json();
-
-            if (!response.ok) {
+            if (response.status !== 200) {
                 throw new Error(data.message || 'Failed to login');
             }
             
@@ -44,7 +45,7 @@ const Login = () => {
             ></div>
 
             {/* Content */}
-            <div className="relative bg-white shadow-md rounded-lg p-8 max-w-md w-full z-10">
+            <div className="relative bg-white/30 backdrop-blur-md border border-white/40 shadow-lg rounded-lg p-8 max-w-md w-full z-10">
                 <h1 className="text-3xl font-bold text-center text-yellow-600 mb-6">Login</h1>
                 <form onSubmit={handleSubmit}>
                     {error && (

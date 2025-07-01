@@ -57,7 +57,7 @@ const FoodDetails = () => {
                     className="w-full h-full object-cover"
                 />
 
-                <div className="p-6">
+                <div className="p-6 bg-white/30 backdrop-blur-md border border-white/40 rounded-lg shadow-lg">
                     <h1 className="text-4xl font-bold text-yellow-600 mt-16">{toUpperCaseAll(food.name)}</h1>
                     <p className="text-gray-700 my-10 text-justify">{food.description}</p>
 

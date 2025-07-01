@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ContactCard from '../components/FoodCard';
+import bgImage from '../assets/background.jpg';
 
 const Pizza = () => {
     const [pizzas, setPizzas] = useState({ seafood: [], vegetable: [], chicken: [], beef: [] });
@@ -51,22 +52,29 @@ const Pizza = () => {
     }
 
     return (
-        <div className="bg-gray-50 min-h-screen mt-20 mb-10">
-            <h1 className="text-6xl font-black text-center text-yellow-600 mb-8 pt-5">Pizza Menu</h1>
+        <div 
+            className="min-h-screen pt-16"
+            style={{
+                backgroundImage: `url(${bgImage})`,
+            }}
+        >
+            <div className="min-h-screen bg-opacity-70 bg-yellow-50  pb-10">
+                <h1 className="text-6xl font-black text-center text-yellow-600 mb-8 pt-5">Pizza Menu</h1>
 
-            <div className="max-w-6xl mx-auto space-y-8">
-                {Object.keys(pizzas).map((category) => (
-                    <div key={category} className="bg-white rounded-lg shadow-lg p-6">
-                        <h2 className={`text-4xl font-semibold text-orange-600 mb-7`}>
-                            {category.charAt(0).toUpperCase() + category.slice(1)} Pizzas
-                        </h2>
-                        <div className="grid grid-cols-4 gap-4">
-                            {pizzas[category].map((pizza, index) => (
-                                <ContactCard key={index} item={pizza} onAddToCart={handleAddToCart} />
-                            ))}
+                <div className="max-w-6xl mx-auto space-y-8">
+                    {Object.keys(pizzas).map((category) => (
+                        <div key={category} className="bg-white/30 border-b-2 border-white rounded-lg shadow-lg p-6">
+                            <h2 className={`text-4xl font-semibold text-orange-600 mb-7`}>
+                                {category.charAt(0).toUpperCase() + category.slice(1)} Pizzas
+                            </h2>
+                            <div className="grid grid-cols-4 gap-4">
+                                {pizzas[category].map((pizza, index) => (
+                                    <ContactCard key={index} item={pizza} onAddToCart={handleAddToCart} />
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
         </div>
     );

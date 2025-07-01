@@ -81,7 +81,7 @@ const Signup = () => {
             ></div>
 
             {/* Content */}
-            <div className="relative bg-white shadow-md rounded-lg p-8 max-w-md w-full z-10">
+            <div className="relative bg-white/30 backdrop-blur-md border border-white/40 shadow-lg rounded-lg p-8 max-w-md w-full z-10">
                 <h1 className="text-3xl font-bold text-center text-yellow-600 mb-6">Sign Up</h1>
                 <form onSubmit={handleSubmit}>
                     {error && (

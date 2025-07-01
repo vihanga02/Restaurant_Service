@@ -28,7 +28,7 @@ const FoodCard = ({ item, onAddToCart }) => {
 
     return (
         <div
-            className="bg-gray-50 rounded-lg shadow p-4 text-center hover:shadow-xl hover:scale-105 transition-transform duration-200 cursor-pointer"
+            className="bg-gray-50/20 rounded-lg shadow-xl p-4 text-center hover:shadow-xl hover:scale-105 transition-transform duration-200 cursor-pointer"
             onClick={handleCardClick}
         >
             <ToastContainer position="top-right" autoClose={3000} />

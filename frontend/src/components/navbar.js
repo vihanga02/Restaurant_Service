@@ -34,7 +34,7 @@ function Navbar() {
     };
 
     return (
-        <nav className="bg-white text-orange-500 p-4 fixed top-0 w-full z-10">
+        <nav className="bg-white/30 backdrop-blur-md border-b border-white/40 text-orange-500 p-4 fixed top-0 w-full z-10">
             <div className="container mx-auto flex justify-between items-center">
                 <div className="flex items-center">
                     <Link to="/" className="text-xl font-black flex items-center">La Pizzeria</Link>
@@ -42,7 +42,7 @@ function Navbar() {
                         <img src={pizzaImage} alt="pizza" className="w-10 h-10 ml-2" />
                     </div>
                 </div>
-                <div>
+                <div className="flex space-x-28">
                     <Link to="/" className="hover:font-bold font-semibold mx-5 text-xl">
                         Home
                     </Link>

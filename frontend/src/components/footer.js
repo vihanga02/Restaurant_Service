@@ -10,7 +10,7 @@ library.add(fab, fas);
 
 const Footer = () => {
     return (
-        <footer className="bg-orange-50 text-orange-950">
+        <footer className="bg-yellow-100/30 backdrop-blur-md border-t border-white/40 text-orange-950">
             <div className="max-w-7xl mx-auto px-4 py-8 md:flex md:justify-between gap-14">
                 {/* About Section */}
                 <div>

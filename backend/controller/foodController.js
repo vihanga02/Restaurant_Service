@@ -4,6 +4,7 @@ const Food = require('../models/food');
 exports.getAllFoods = async (req, res) => {
   try {
     const foods = await Food.find();
+    
     res.status(200).json(foods);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch food items' });

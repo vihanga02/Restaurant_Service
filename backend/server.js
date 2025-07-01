@@ -4,6 +4,7 @@ const connectDb = require("./config/dbconfig.js");
 const cors = require("cors");
 const router = require("./routes/index.js");
 const cookieParser = require("cookie-parser");
+const foodRouter = require("./routes/foodRoute.js");
 
 
 connectDb();

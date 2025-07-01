@@ -17,7 +17,7 @@ const ContactUs = () => {
                 {/* Contact Details and Form */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Contact Details */}
-                    <div className="bg-white p-8 rounded-lg shadow-md">
+                    <div className="bg-white/30 backdrop-blur-md border border-white/40 p-8 rounded-lg shadow-md">
                         <h2 className="text-2xl font-semibold text-orange-700 mb-4">Our Contact Details</h2>
                         <p className="text-gray-600 mb-6">
                             Feel free to reach out to us using the information below.
@@ -78,7 +78,7 @@ const ContactUs = () => {
                     </div>
 
                     {/* Contact Form */}
-                    <div className="bg-white p-6 rounded-lg shadow-md">
+                    <div className="bg-white/30 backdrop-blur-md border border-white/40 p-6 rounded-lg shadow-md">
                         <h2 className="text-2xl font-semibold text-orange-700 mb-4">Send Us a Message</h2>
                         <form>
                             <div className="mb-4">

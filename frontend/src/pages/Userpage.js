@@ -99,7 +99,7 @@ const CustomerOrders = () => {
 
             {/* Customer Details */}
             {customerDetails && (
-                <div className="bg-white shadow-md rounded-lg p-6 mb-6 max-w-4xl mx-auto">
+                <div className="bg-white/30 backdrop-blur-md border border-white/40 shadow-md rounded-lg p-6 mb-6 max-w-4xl mx-auto">
                     <h2 className="text-4xl text-center font-bold text-orange-600 mb-4">Your Details</h2>
                     <p className="text-gray-800 mb-3">
                         <strong>Name:</strong> {customerDetails.name}

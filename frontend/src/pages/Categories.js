@@ -76,7 +76,7 @@ const Categories = () => {
                     <Link
                         to={category.link}
                         key={index}
-                        className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center transition-transform transform hover:scale-105 hover:shadow-lg"
+                        className="bg-white/30 backdrop-blur-md border border-white/40 p-4 rounded-lg shadow-md flex flex-col items-center transition-transform transform hover:scale-105 hover:shadow-lg"
                     >
                         {/* Render the SVG icon */}
                         {categoryIcons[category.name]}
