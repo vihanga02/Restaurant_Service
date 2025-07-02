@@ -95,6 +95,13 @@ const FoodCard = ({ item, onAddToCart }) => {
                 className="w-full h-60 object-cover rounded"
             />
             <h3 className="text-xl font-bold mt-2">{capitalizeName(item.name)}</h3>
+            {/* Star Rating Display */}
+            <div className="flex items-center justify-center mt-1 mb-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <span key={i} className={i < Math.round(item.starRating) ? 'text-yellow-500' : 'text-gray-300'}>★</span>
+                ))}
+                <span className="ml-2 text-sm text-gray-600">{item.starRating ? item.starRating.toFixed(1) : '0.0'} ({item.numReviews || 0})</span>
+            </div>
             <p className="text-yellow-600 font-bold">LKR {item.price}</p>
             <button
                 onClick={(e) => {

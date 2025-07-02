@@ -3,8 +3,12 @@ const Food = require('../models/food');
 // Get all food items
 exports.getAllFoods = async (req, res) => {
   try {
-    const foods = await Food.find();
-    
+    const minRating = parseFloat(req.query.minRating);
+    let query = {};
+    if (!isNaN(minRating)) {
+      query.starRating = { $gte: minRating };
+    }
+    const foods = await Food.find(query);
     res.status(200).json(foods);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch food items' });
@@ -58,5 +62,27 @@ exports.deleteFood = async (req, res) => {
     res.status(200).json({ message: 'Food item deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete food item' });
+  }
+};
+
+// Add a review to a food item
+exports.addReview = async (req, res) => {
+  try {
+    const { stars, comment, user } = req.body;
+    const food = await Food.findById(req.params.id);
+    if (!food) {
+      return res.status(404).json({ error: 'Food item not found' });
+    }
+    if (typeof stars !== 'number' || stars < 0 || stars > 5) {
+      return res.status(400).json({ error: 'Stars must be a number between 0 and 5' });
+    }
+    // Optionally, check if user already reviewed (if user is required)
+    food.reviews.push({ user, stars, comment });
+    food.numReviews = food.reviews.length;
+    food.starRating = food.reviews.reduce((acc, r) => acc + r.stars, 0) / food.numReviews;
+    await food.save();
+    res.status(201).json(food);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to add review' });
   }
 };

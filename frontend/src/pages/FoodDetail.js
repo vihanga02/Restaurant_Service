@@ -139,7 +139,37 @@ const FoodDetails = () => {
                     >
                         Add to Cart
                     </button>
+                    {/* Star Rating Display */}
+                    <div className="flex items-center gap-2 mb-2">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                            <span key={i} className={i < Math.round(food.starRating) ? 'text-yellow-500' : 'text-gray-300'}>★</span>
+                        ))}
+                        <span className="ml-2 text-lg text-gray-700">{food.starRating ? food.starRating.toFixed(1) : '0.0'} / 5</span>
+                        <span className="ml-2 text-sm text-gray-600">({food.numReviews || 0} reviews)</span>
+                    </div>
                 </div>
+            </div>
+            {/* Reviews Section */}
+            <div className="max-w-3xl mx-auto mt-12 bg-white/60 rounded-lg shadow p-6">
+                <h2 className="text-2xl font-bold text-orange-700 mb-4">Reviews</h2>
+                {food.reviews && food.reviews.length > 0 ? (
+                    <ul className="space-y-4">
+                        {food.reviews.map((review, idx) => (
+                            <li key={idx} className="border-b border-gray-200 pb-2">
+                                <div className="flex items-center gap-2 mb-1">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <span key={i} className={i < review.stars ? 'text-yellow-500' : 'text-gray-300'}>★</span>
+                                    ))}
+                                    <span className="ml-2 text-sm text-gray-700">{review.stars} / 5</span>
+                                    <span className="ml-4 text-xs text-gray-500">{review.date ? new Date(review.date).toLocaleDateString() : ''}</span>
+                                </div>
+                                <div className="text-gray-800 text-base">{review.comment || <span className="italic text-gray-400">No comment</span>}</div>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className="text-gray-500 italic">No reviews yet.</div>
+                )}
             </div>
         </div>
     );

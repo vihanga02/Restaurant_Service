@@ -13,6 +13,7 @@ const Drinks = () => {
     const [favoriteIds, setFavoriteIds] = useState([]);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showFavMsg, setShowFavMsg] = useState("");
+    const [minRating, setMinRating] = useState(0);
 
     useEffect(() => {
         const urlSearch = searchParams.get('search') || "";
@@ -69,7 +70,8 @@ const Drinks = () => {
         const matchesSearch = drink.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (drink.description && drink.description.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesFavorite = !showFavoritesOnly || favoriteIds.includes(drink._id);
-        return matchesSearch && matchesFavorite;
+        const matchesRating = (drink.starRating || 0) >= minRating;
+        return matchesSearch && matchesFavorite && matchesRating;
     });
 
     const handleAddToCart = (drink) => {
@@ -89,8 +91,8 @@ const Drinks = () => {
             <div className="min-h-screen bg-opacity-70 bg-yellow-50 pt-20 pb-10">
                 <h1 className="text-6xl font-black text-center text-yellow-600 mb-8 pt-5">Drinks Menu</h1>
                 {/* Glassy Search Bar and Favorites Toggle */}
-                <div className="max-w-2xl mx-auto mb-8 flex flex-col md:flex-row gap-4 items-center ">
-                  <div className="flex-1 flex items-center glassy-bar px-4 py-3 rounded-2xl shadow-lg backdrop-blur-md bg-white/40 border border-white/30">
+                <div className="max-w-3xl mx-auto mb-8 flex flex-col md:flex-row gap-4 items-center ">
+                  <div className="flex-1 flex items-center glassy-bar px-4 py-2 rounded-2xl shadow-lg backdrop-blur-md bg-white/40 border border-white/30">
                     <input
                       type="text"
                       placeholder="Search drinks..."
@@ -99,12 +101,20 @@ const Drinks = () => {
                       className="px-2 py-0 border-none outline-none bg-transparent text-gray-700 w-full placeholder-gray-400 text-lg"
                     />
                   </div>
+                  <div className="flex items-center gap-2 ml-2 glassy-bar px-4 py-2 rounded-2xl shadow-lg backdrop-blur-md bg-white/40 border border-white/30">
+                    <label className="text-yellow-700 font-semibold">Min Rating:</label>
+                    <select value={minRating} onChange={e => setMinRating(Number(e.target.value))} className="px-2 py-1 rounded border bg-transparent">
+                      {[0,1,2,3,4,5].map(r => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
                   <label className="flex items-center gap-2 text-yellow-700 font-semibold cursor-pointer select-none glassy-bar px-4 py-3 rounded-2xl shadow-lg backdrop-blur-md bg-white/40 border border-white/30">
                     <input
                       type="checkbox"
                       checked={showFavoritesOnly}
                       onChange={e => setShowFavoritesOnly(e.target.checked)}
-                      className="accent-yellow-500"
+                      className="accent-yellow-500 bg-transparent"
                     />
                     Show Favorites Only
                   </label>

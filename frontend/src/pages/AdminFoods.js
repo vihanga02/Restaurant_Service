@@ -24,11 +24,12 @@ const AdminFoods = () => {
   const [foodForm, setFoodForm] = useState(initialFood);
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState("");
+  const [minRating, setMinRating] = useState(0);
 
   // Fetch all foods
-  const fetchFoods = async () => {
+  const fetchFoods = async (rating = minRating) => {
     try {
-      const response = await axios.get(`${API_URL}/`);
+      const response = await axios.get(`${API_URL}/?minRating=${rating}`);
       setFoods(response.data);
     } catch (err) {
       setError("Failed to fetch foods");
@@ -37,7 +38,8 @@ const AdminFoods = () => {
 
   useEffect(() => {
     fetchFoods();
-  }, []);
+    // eslint-disable-next-line
+  }, [minRating]);
 
   // Handle form input
   const handleChange = (e) => {
@@ -175,12 +177,25 @@ const AdminFoods = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 pt-24">
       <div className="bg-white/30 backdrop-blur-md border border-white/40 shadow-lg rounded-lg p-10 w-full max-w-5xl">
         <h2 className="text-3xl font-bold text-orange-700 mb-8">Food Management</h2>
-        <button
-          className="mb-6 px-6 py-2 bg-yellow-500/80 text-white font-bold rounded-lg shadow hover:bg-yellow-600 transition"
-          onClick={() => openModal()}
-        >
-          Add New Food
-        </button>
+        {/* Star Rating Filter */}
+        <div className="mb-6 flex items-center gap-4">
+          <label className="font-semibold text-orange-700">Min Star Rating:</label>
+          <select
+            value={minRating}
+            onChange={e => setMinRating(Number(e.target.value))}
+            className="px-3 py-1 border rounded"
+          >
+            {[0,1,2,3,4,5].map(r => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+          <button
+            className="ml-auto px-6 py-2 bg-yellow-500/80 text-white font-bold rounded-lg shadow hover:bg-yellow-600 transition"
+            onClick={() => openModal()}
+          >
+            Add New Food
+          </button>
+        </div>
         {error && <div className="text-red-600 mb-4">{error}</div>}
         <div className="overflow-x-auto">
           <table className="min-w-full text-left">
@@ -191,6 +206,8 @@ const AdminFoods = () => {
                 <th className="px-4 py-2">Category 1</th>
                 <th className="px-4 py-2">Category 2</th>
                 <th className="px-4 py-2">Image</th>
+                <th className="px-4 py-2">Star Rating</th>
+                <th className="px-4 py-2"># Reviews</th>
                 <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
@@ -204,6 +221,13 @@ const AdminFoods = () => {
                   <td className="px-4 py-2">
                     {food.imageUrl && <img src={food.imageUrl} alt={food.name} className="w-12 h-12 object-cover rounded" />}
                   </td>
+                  <td className="px-4 py-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <span key={i} className={i < Math.round(food.starRating) ? 'text-yellow-500' : 'text-gray-300'}>★</span>
+                    ))}
+                    <span className="ml-1 text-sm">{food.starRating ? food.starRating.toFixed(1) : '0.0'}</span>
+                  </td>
+                  <td className="px-4 py-2">{food.numReviews || 0}</td>
                   <td className="px-4 py-2">
                     <button
                       className="mr-2 px-3 py-1 bg-yellow-500/80 text-white rounded hover:bg-yellow-600"
