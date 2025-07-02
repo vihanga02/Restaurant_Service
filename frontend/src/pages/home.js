@@ -1,10 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import garfield from "../assets/home.jpg";
 import home1 from "../assets/home1.jpg";
 import home2 from "../assets/home2.jpg";
 import home3 from "../assets/home3.jpg";
+import FoodCard from "../components/FoodCard";
+import axios from "axios";
 
 const Home = () => {
+    const [topFoods, setTopFoods] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchTopFoods = async () => {
+            try {
+                const response = await axios.get("http://localhost:8000/api/foods/top-rated");
+                setTopFoods(response.data);
+                setLoading(false);
+            } catch (err) {
+                setError("Failed to load top rated foods.");
+                setLoading(false);
+            }
+        };
+        fetchTopFoods();
+    }, []);
+
     return (
         <div className=" mb-10 container mx-auto p-4 mt-16 flex flex-col justify-between w-screen">
             <div className="w-full flex justify-between mb-20">
@@ -17,6 +37,24 @@ const Home = () => {
                     <img src={garfield} alt="pizza" className="relative w-full h-auto"/>
                 </div>
             </div>
+
+            {/* Top Rated Foods Section */}
+            
+                {loading ? (
+                    <div className="text-lg text-gray-500">Loading...</div>
+                ) : error ? (
+                    <div className=""></div>
+                ) : (
+                <div className="w-full flex flex-col items-center mb-16 mt-10">
+                    <h2 className="text-4xl font-bold mb-6 text-yellow-700">Top 4 Rated Foods</h2>
+                    <div className="w-full flex flex-wrap justify-center gap-8">
+                        {topFoods.map((item) => (
+                                <FoodCard item={item} />
+                        ))}
+                    </div>
+                </div>
+                )}
+            
 
             <div className="w-full mt-16 flex flex-col items-center">
                 <h2 className="text-4xl font-bold mt-4 mb-4">About Our Company</h2>
