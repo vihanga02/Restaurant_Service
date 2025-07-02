@@ -25,7 +25,7 @@ const AdminSignup = () => {
         }
         try {
             const { repassword, ...dataToSend } = formData;
-            const response = await fetch('http://localhost:8000/api/admins/register', {
+            const response = await fetch('http://localhost:8000/api/admin/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataToSend),

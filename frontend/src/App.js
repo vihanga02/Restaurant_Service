@@ -23,6 +23,7 @@ import AdminUsers from "./pages/AdminUsers";
 import AdminOrders from "./pages/AdminOrders";
 import AdminFoods from "./pages/AdminFoods";
 import AdminSignup from "./pages/AdminSignup";
+import AdminLogin from "./pages/AdminLogin";
 
 function App() {
   return (
@@ -34,7 +35,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const hideNavbarFooter = location.pathname === "/login" || location.pathname === "/signup";
+  const hideNavbarFooter = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/admin/login";
 
   return (
     <>
@@ -61,6 +62,7 @@ function AppContent() {
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/foods" element={<AdminFoods />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
           </Routes>
         </main>
         <ToastContainer position="top-right" autoClose={3000} />

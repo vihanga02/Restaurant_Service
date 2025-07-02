@@ -3,7 +3,7 @@ import image from '../assets/signup.jpg';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe('pk_test_XXXXXXXXXXXXXXXXXXXXXXXX'); // Replace with your Stripe publishable key
+const stripePromise = loadStripe('pk_test_51RgTw3QhnsyWQBjMDCGjCwaEUrW9EpBb6gZalf4ANbCR9ZKklG05wgoiGAGCKQTJmcTA58MjRa90zmeIcqN5wvki00lHq0ThY7'); // Replace with your Stripe publishable key
 
 const SignupForm = () => {
     const [formData, setFormData] = useState({

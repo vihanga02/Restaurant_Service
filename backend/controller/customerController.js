@@ -9,23 +9,51 @@ exports.registerCustomer = async (req, res) => {
     try {
         const { password, cardToken, ...otherDetails } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
+        
         // Create Stripe customer
         const stripeCustomer = await stripe.customers.create({
             email: otherDetails.email,
             name: otherDetails.name,
-            source: cardToken // cardToken from Stripe Elements
         });
-        // Get card details from Stripe customer
-        const defaultSource = stripeCustomer.sources.data[0];
+        
+        // Attach the payment method to the customer
+        let cardDetails = {};
+        if (cardToken) {
+            try {
+                // If using payment method token
+                await stripe.paymentMethods.attach(cardToken, {
+                    customer: stripeCustomer.id,
+                });
+                
+                // Get payment method details
+                const paymentMethod = await stripe.paymentMethods.retrieve(cardToken);
+                cardDetails = {
+                    cardLast4: paymentMethod.card.last4,
+                    cardBrand: paymentMethod.card.brand,
+                    cardExpMonth: paymentMethod.card.exp_month,
+                    cardExpYear: paymentMethod.card.exp_year
+                };
+            } catch (stripeError) {
+                // If cardToken is actually a source token, use the old method
+                const source = await stripe.customers.createSource(stripeCustomer.id, {
+                    source: cardToken
+                });
+                cardDetails = {
+                    cardLast4: source.last4,
+                    cardBrand: source.brand,
+                    cardExpMonth: source.exp_month,
+                    cardExpYear: source.exp_year
+                };
+            }
+        }
+
         const newCustomer = new Customer({
             ...otherDetails,
             password: hashedPassword,
             stripeCustomerId: stripeCustomer.id,
-            cardLast4: defaultSource.last4,
-            cardBrand: defaultSource.brand,
-            cardExpMonth: defaultSource.exp_month,
-            cardExpYear: defaultSource.exp_year
+            ...cardDetails
         });
+        
         await newCustomer.save();
         res.status(201).json({ customer: newCustomer });
     } catch (err) {
@@ -164,4 +192,23 @@ exports.removeFavorite = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to remove from favorites' });
   }
+};
+
+// Get customer payment info
+exports.getCustomerPaymentInfo = async (req, res) => {
+    try {
+        const customer = await Customer.findById(req.user.id);
+        if (!customer) {
+            return res.status(404).json({ error: 'Customer not found' });
+        }
+        const paymentInfo = {
+            cardBrand: customer.cardBrand,
+            cardLast4: customer.cardLast4,
+            cardExpMonth: customer.cardExpMonth,
+            cardExpYear: customer.cardExpYear
+        };
+        res.status(200).json(paymentInfo);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch payment info' });
+    }
 };

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const customerController = require('../controller/customerController');
-const authenticateToken = require('../middleware/authentication')
+const  authenticateToken  = require('../middleware/authentication');
 
 
 router.post('/register', customerController.registerCustomer);
@@ -22,5 +22,7 @@ router.delete('/:id', customerController.deleteCustomer);
 router.get('/favorites', authenticateToken('Customer'), customerController.getFavorites);
 router.post('/favorites', authenticateToken('Customer'), customerController.addFavorite);
 router.delete('/favorites/:foodId', authenticateToken('Customer'), customerController.removeFavorite);
+
+router.get('/payment-info', authenticateToken('Customer'), customerController.getCustomerPaymentInfo);
 
 module.exports = router;
