@@ -81,3 +81,15 @@ exports.addReview = async (req, res) => {
     res.status(400).json({ error: 'Failed to add review' });
   }
 };
+
+// Get top 4 rated food items
+exports.getTopRatedFoods = async (req, res) => {
+  try {
+    const topFoods = await Food.find()
+      .sort({ starRating: -1, numReviews: -1 })
+      .limit(4);
+    res.status(200).json(topFoods);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch top rated food items' });
+  }
+};

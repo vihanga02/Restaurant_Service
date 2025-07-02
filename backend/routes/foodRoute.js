@@ -4,6 +4,8 @@ const foodController = require('../controller/foodController');
 
 router.get('/', foodController.getAllFoods);
 
+router.get('/top-rated', foodController.getTopRatedFoods);
+
 router.get('/:id', foodController.getFoodById);
 
 router.post('/', foodController.addFood);
