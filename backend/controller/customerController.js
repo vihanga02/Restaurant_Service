@@ -2,13 +2,30 @@ const Customer = require('../models/customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Food = require('../models/food');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Register a new customer
 exports.registerCustomer = async (req, res) => {
     try {
-        const { password, ...otherDetails } = req.body;
+        const { password, cardToken, ...otherDetails } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newCustomer = new Customer({ ...otherDetails, password: hashedPassword });
+        // Create Stripe customer
+        const stripeCustomer = await stripe.customers.create({
+            email: otherDetails.email,
+            name: otherDetails.name,
+            source: cardToken // cardToken from Stripe Elements
+        });
+        // Get card details from Stripe customer
+        const defaultSource = stripeCustomer.sources.data[0];
+        const newCustomer = new Customer({
+            ...otherDetails,
+            password: hashedPassword,
+            stripeCustomerId: stripeCustomer.id,
+            cardLast4: defaultSource.last4,
+            cardBrand: defaultSource.brand,
+            cardExpMonth: defaultSource.exp_month,
+            cardExpYear: defaultSource.exp_year
+        });
         await newCustomer.save();
         res.status(201).json({ customer: newCustomer });
     } catch (err) {

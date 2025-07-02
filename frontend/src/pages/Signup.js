@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import image from '../assets/signup.jpg';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const Signup = () => {
+const stripePromise = loadStripe('pk_test_XXXXXXXXXXXXXXXXXXXXXXXX'); // Replace with your Stripe publishable key
+
+const SignupForm = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -10,9 +14,10 @@ const Signup = () => {
         password: '',
         repassword: ''
     });
-
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
+    const stripe = useStripe();
+    const elements = useElements();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,52 +28,54 @@ const Signup = () => {
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
+        e.preventDefault();
+        setError(null);
+        setSuccess(false);
 
-    // Email validation
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(formData.email)) {
-        setError('Invalid email format');
-        return;
-    }
+        // Email validation
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(formData.email)) {
+            setError('Invalid email format');
+            return;
+        }
+        if (!/^\d{10}$/.test(formData.phone)) {
+            setError('Phone number must be 10 digits');
+            return;
+        }
+        if (formData.password !== formData.repassword) {
+            setError('Passwords do not match');
+            return;
+        }
 
-    // Phone number validation
-    if (!/^\d{10}$/.test(formData.phone)) {
-        setError('Phone number must be 10 digits');
-        return;
-    }
+        if (!stripe || !elements) {
+            setError('Stripe has not loaded');
+            return;
+        }
 
-    // Password match validation
-    if (formData.password !== formData.repassword) {
-        setError('Passwords do not match');
-        return;
-    }
+        // Create Stripe token
+        const cardElement = elements.getElement(CardElement);
+        const { error: stripeError, token } = await stripe.createToken(cardElement);
+        if (stripeError) {
+            setError(stripeError.message);
+            return;
+        }
 
-    try {
-        // Create a new object without the repassword field
-        const { repassword, ...dataToSend } = formData;
-        console.log(JSON.stringify(dataToSend));
-
-        const response = await fetch('http://localhost:8000/api/customers/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataToSend),
-        });
-
-        const data = await response.json();
-
+        try {
+            const { repassword, ...dataToSend } = formData;
+            const response = await fetch('http://localhost:8000/api/customers/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ...dataToSend, cardToken: token.id }),
+            });
+            const data = await response.json();
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to register');
             }
-    
-            console.log('Registration successful:', data);
             setSuccess(true);
         } catch (err) {
             setError(err.message);
         }
-    }
+    };
 
     return (
         <div className="relative bg-gray-50 min-h-screen flex items-center justify-center">
@@ -186,6 +193,13 @@ const Signup = () => {
                         />
                     </div>
 
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-bold mb-2">Card Details</label>
+                        <div className="border rounded-lg p-2 bg-white">
+                            <CardElement options={{ hidePostalCode: true }} />
+                        </div>
+                    </div>
+
                     <button
                         type="submit"
                         className="w-full bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-yellow-700 transition-colors"
@@ -201,5 +215,11 @@ const Signup = () => {
         </div>
     );
 };
+
+const Signup = () => (
+    <Elements stripe={stripePromise}>
+        <SignupForm />
+    </Elements>
+);
 
 export default Signup;

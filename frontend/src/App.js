@@ -15,12 +15,14 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FoodDetails from "./pages/FoodDetail";
 import UserPage from "./pages/Userpage";
+import Checkout from "./pages/Checkout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminPanel from "./pages/AdminPanel";
 import AdminUsers from "./pages/AdminUsers";
 import AdminOrders from "./pages/AdminOrders";
 import AdminFoods from "./pages/AdminFoods";
+import AdminSignup from "./pages/AdminSignup";
 
 function App() {
   return (
@@ -53,7 +55,9 @@ function AppContent() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/food-details/:id" element={<FoodDetails />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/admin/signup" element={<AdminSignup />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/foods" element={<AdminFoods />} />
