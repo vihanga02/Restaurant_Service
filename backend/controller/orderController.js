@@ -100,3 +100,13 @@ exports.markOrderAsDelivered = async (req, res) => {
         res.status(500).json({ error: 'Failed to mark order as delivered' });
     }
 };
+
+// Get count of pending orders for a customer
+exports.getPendingOrderCount = async (req, res) => {
+  try {
+    const count = await Order.countDocuments({ customerId: req.user.id, status: "Pending" });
+    res.status(200).json({ count });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch pending order count' });
+  }
+};

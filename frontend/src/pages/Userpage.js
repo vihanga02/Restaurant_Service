@@ -8,6 +8,7 @@ const CustomerOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [favorites, setFavorites] = useState([]);
 
     useEffect(() => {
         const fetchCustomerData = async () => {
@@ -21,6 +22,17 @@ const CustomerOrders = () => {
                     .catch((err) => {
                         console.error("Error fetching customer data:", err);
                         setError("Failed to load data. Please try again later.");
+                    });
+
+                // Fetch customer favorites
+                axios
+                    .get("http://localhost:8000/api/customers/favorites", { withCredentials: true })
+                    .then((responseFav) => {
+                        setFavorites(responseFav.data.favorites || []);
+                    })
+                    .catch((err) => {
+                        console.error("Error fetching favorites:", err);
+                        setError("Failed to load favorites. Please try again later.");
                     });
 
                 // Fetch customer orders
@@ -93,7 +105,7 @@ const CustomerOrders = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8 pt-20">
+        <div className="min-h-screen bg-white-50 p-8 pt-20 bg-yellow-50/10">
             {/* Toast Notification */}
             <ToastContainer position="top-right" autoClose={3000} />
 
@@ -115,6 +127,24 @@ const CustomerOrders = () => {
                     </p>
                 </div>
             )}
+
+            {/* Favorite Items */}
+            <div className="bg-white/30 backdrop-blur-md border border-white/40 shadow-md rounded-lg p-6 mb-6 max-w-4xl mx-auto">
+                <h2 className="text-3xl text-center font-bold text-orange-500 mb-4">Your Favorite Items</h2>
+                {favorites.length === 0 ? (
+                    <p className="text-gray-600 text-center">No favorite items found.</p>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {favorites.map((item) => (
+                            <div key={item._id}>
+                                {/* Use FoodCard for each favorite item */}
+                                {/* FoodCard expects 'item' prop */}
+                                {React.createElement(require('../components/FoodCard').default, { item })}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {/* Orders */}
             <div className="bg-white shadow-md rounded-lg p-6 max-w-5xl mx-auto">

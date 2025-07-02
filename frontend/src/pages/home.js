@@ -47,7 +47,7 @@ const Home = () => {
                 ) : (
                 <div className="w-full flex flex-col items-center mb-16 mt-10">
                     <h2 className="text-4xl font-bold mb-6 text-yellow-700">Top 4 Rated Foods</h2>
-                    <div className="w-full flex flex-wrap justify-center gap-8">
+                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-20">
                         {topFoods.map((item) => (
                                 <FoodCard item={item} />
                         ))}

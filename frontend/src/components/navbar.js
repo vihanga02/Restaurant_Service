@@ -9,6 +9,7 @@ function Navbar() {
     const navigate = useNavigate();
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [pendingCount, setPendingCount] = useState(0);
 
     useEffect(() => {
         const checkLogin = async () => {
@@ -16,9 +17,20 @@ function Navbar() {
                 const response = await axios.get('http://localhost:8000/api/customers/navbar', { withCredentials: true });
                 if (response.data.success) {
                     setIsLoggedIn(true);
+                    // Fetch pending order count if logged in
+                    fetchPendingOrderCount();
                 }
             } catch (err) {
                 console.error(err);
+            }
+        };
+
+        const fetchPendingOrderCount = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/api/orders/pending/count', { withCredentials: true });
+                setPendingCount(response.data.count || 0);
+            } catch (err) {
+                setPendingCount(0);
             }
         };
 
@@ -56,10 +68,15 @@ function Navbar() {
                 <div>
                     {isLoggedIn ? (
                         <div
-                            className="cursor-pointer text-orange-500 hover:text-orange-600 transition"
+                            className="relative cursor-pointer text-orange-500 hover:text-orange-600 transition"
                             onClick={handleProfileClick}
                         >
                             <FaUserCircle size={36} /> {/* Profile icon */}
+                            {pendingCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                                    {pendingCount}
+                                </span>
+                            )}
                         </div>
                     ) : (
                         <button 
