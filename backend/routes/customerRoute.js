@@ -18,4 +18,9 @@ router.put('/:id', customerController.updateCustomer);
 
 router.delete('/:id', customerController.deleteCustomer);
 
+// Favorites routes
+router.get('/favorites', authenticateToken('Customer'), customerController.getFavorites);
+router.post('/favorites', authenticateToken('Customer'), customerController.addFavorite);
+router.delete('/favorites/:foodId', authenticateToken('Customer'), customerController.removeFavorite);
+
 module.exports = router;

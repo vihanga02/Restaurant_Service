@@ -1,6 +1,7 @@
 const Customer = require('../models/customer');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Food = require('../models/food');
 
 // Register a new customer
 exports.registerCustomer = async (req, res) => {
@@ -98,5 +99,52 @@ exports.deleteCustomer = async (req, res) => {
     res.status(200).json({ message: 'Customer deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete customer account' });
+  }
+};
+
+// Get all favorites for the logged-in customer
+exports.getFavorites = async (req, res) => {
+  try {
+    const customer = await Customer.findById(req.user.id).populate('favourites');
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    res.status(200).json({ favorites: customer.favourites });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch favorites' });
+  }
+};
+
+// Add a food to favorites
+exports.addFavorite = async (req, res) => {
+  try {
+    const { foodId } = req.body;
+    const customer = await Customer.findById(req.user.id);
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    if (!customer.favourites.includes(foodId)) {
+      customer.favourites.push(foodId);
+      await customer.save();
+    }
+    res.status(200).json({ message: 'Added to favorites' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add to favorites' });
+  }
+};
+
+// Remove a food from favorites
+exports.removeFavorite = async (req, res) => {
+  try {
+    const foodId = req.params.foodId;
+    const customer = await Customer.findById(req.user.id);
+    if (!customer) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+    customer.favourites = customer.favourites.filter(fav => fav.toString() !== foodId);
+    await customer.save();
+    res.status(200).json({ message: 'Removed from favorites' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to remove from favorites' });
   }
 };
