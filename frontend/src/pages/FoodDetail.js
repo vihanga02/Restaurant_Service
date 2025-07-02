@@ -16,6 +16,7 @@ const FoodDetails = () => {
     const [reviewComment, setReviewComment] = useState("");
     const [reviewLoading, setReviewLoading] = useState(false);
     const [reviewError, setReviewError] = useState("");
+    const [showAllReviews, setShowAllReviews] = useState(false);
 
     useEffect(() => {
         const fetchFoodDetails = async () => {
@@ -170,7 +171,7 @@ const FoodDetails = () => {
                         Add to Cart
                     </button>
                     {/* Star Rating Display */}
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mt-4">
                         {Array.from({ length: 5 }).map((_, i) => (
                             <span key={i} className={i < Math.round(food.starRating) ? 'text-yellow-500' : 'text-gray-300'}>★</span>
                         ))}
@@ -183,20 +184,49 @@ const FoodDetails = () => {
             <div className="max-w-3xl mx-auto mt-12 bg-white/60 rounded-lg shadow p-6">
                 <h2 className="text-2xl font-bold text-orange-700 mb-4">Reviews</h2>
                 {food.reviews && food.reviews.length > 0 ? (
-                    <ul className="space-y-4">
-                        {food.reviews.map((review, idx) => (
-                            <li key={idx} className="border-b border-gray-200 pb-2">
-                                <div className="flex items-center gap-2 mb-1">
-                                    {Array.from({ length: 5 }).map((_, i) => (
-                                        <span key={i} className={i < review.stars ? 'text-yellow-500' : 'text-gray-300'}>★</span>
+                    (() => {
+                        // Sort reviews by stars (desc), then by date (desc)
+                        const sortedReviews = [...food.reviews].sort((a, b) => {
+                            if (b.stars !== a.stars) return b.stars - a.stars;
+                            // If stars are equal, sort by date (newest first)
+                            return new Date(b.date || 0) - new Date(a.date || 0);
+                        });
+                        const reviewsToShow = showAllReviews ? sortedReviews : sortedReviews.slice(0, 3);
+                        return (
+                            <>
+                                <ul className="space-y-4">
+                                    {reviewsToShow.map((review, idx) => (
+                                        <li key={idx} className="border-b border-gray-200 pb-2">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                    <span key={i} className={i < review.stars ? 'text-yellow-500' : 'text-gray-300'}>★</span>
+                                                ))}
+                                                <span className="ml-2 text-sm text-gray-700">{review.stars} / 5</span>
+                                                <span className="ml-4 text-xs text-gray-500">{review.date ? new Date(review.date).toLocaleDateString() : ''}</span>
+                                            </div>
+                                            <div className="text-gray-800 text-base">{review.comment || <span className="italic text-gray-400">No comment</span>}</div>
+                                        </li>
                                     ))}
-                                    <span className="ml-2 text-sm text-gray-700">{review.stars} / 5</span>
-                                    <span className="ml-4 text-xs text-gray-500">{review.date ? new Date(review.date).toLocaleDateString() : ''}</span>
-                                </div>
-                                <div className="text-gray-800 text-base">{review.comment || <span className="italic text-gray-400">No comment</span>}</div>
-                            </li>
-                        ))}
-                    </ul>
+                                </ul>
+                                {sortedReviews.length > 3 && !showAllReviews && (
+                                    <button
+                                        className="mt-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                        onClick={() => setShowAllReviews(true)}
+                                    >
+                                        View More Reviews
+                                    </button>
+                                )}
+                                {sortedReviews.length > 3 && showAllReviews && (
+                                    <button
+                                        className="mt-4 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                                        onClick={() => setShowAllReviews(false)}
+                                    >
+                                        Show Less
+                                    </button>
+                                )}
+                            </>
+                        );
+                    })()
                 ) : (
                     <div className="text-gray-500 italic">No reviews yet.</div>
                 )}
