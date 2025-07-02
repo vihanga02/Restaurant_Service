@@ -3,12 +3,7 @@ const Food = require('../models/food');
 // Get all food items
 exports.getAllFoods = async (req, res) => {
   try {
-    const minRating = parseFloat(req.query.minRating);
-    let query = {};
-    if (!isNaN(minRating)) {
-      query.starRating = { $gte: minRating };
-    }
-    const foods = await Food.find(query);
+    const foods = await Food.find();
     res.status(200).json(foods);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch food items' });

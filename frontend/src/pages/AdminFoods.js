@@ -10,12 +10,10 @@ const initialFood = {
   category1: "",
   category2: "",
   imageUrl: ""
-  // Removed starRating
 };
 
-// Predefined categories
 const CATEGORY1_OPTIONS = ["pizza", "pasta", "soup", "drink", "dessert"];
-const CATEGORY2_OPTIONS = ["beef", "chicken", "seafood", "vegetable"]; // Note: fixed "checken" to "chicken"
+const CATEGORY2_OPTIONS = ["beef", "chicken", "seafood", "vegetable"];
 
 const AdminFoods = () => {
   const [foods, setFoods] = useState([]);
@@ -25,6 +23,9 @@ const AdminFoods = () => {
   const [editId, setEditId] = useState(null);
   const [error, setError] = useState("");
   const [minRating, setMinRating] = useState(0);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
 
   // Fetch all foods
   const fetchFoods = async (rating = minRating) => {
@@ -56,19 +57,19 @@ const AdminFoods = () => {
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageUploading(true);
+      setError("");
       try {
-        // Create preview URL immediately using original file
+        // Optionally, show a preview (not saved to DB)
         const loadingUrl = URL.createObjectURL(file);
         setFoodForm((prev) => ({
           ...prev,
           imageUrl: loadingUrl
         }));
 
-        // Create FormData for imgbb upload using original file
         const formDataImage = new FormData();
         formDataImage.append("image", file);
 
-        // Upload to imgbb
         const response = await fetch(
           "https://api.imgbb.com/1/upload?key=4e08e03047ee0d48610586ad270e2b39",
           {
@@ -84,19 +85,19 @@ const AdminFoods = () => {
         const data = await response.json();
         const uploadedUrl = data.data.url;
 
-        // Replace preview with actual uploaded URL
+        // Only set the real URL for DB
         setFoodForm((prev) => ({
           ...prev,
           imageUrl: uploadedUrl
         }));
-
+        setImageUploading(false);
         console.log("Image uploaded successfully:", uploadedUrl);
       } catch (error) {
-        console.error("Error uploading image:", error);
+        setImageUploading(false);
         setError("Failed to upload image. Please try again.");
         setFoodForm((prev) => ({
           ...prev,
-          imageUrl: prev.imageUrl || ""
+          imageUrl: ""
         }));
       }
     }
@@ -136,6 +137,14 @@ const AdminFoods = () => {
   // Add or edit food
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (imageUploading) {
+      setError("Please wait for the image to finish uploading.");
+      return;
+    }
+    if (foodForm.imageUrl.startsWith('blob:')) {
+      setError("Image is still uploading. Please wait.");
+      return;
+    }
     try {
       console.log("foodForm data:", foodForm);
       
@@ -147,7 +156,6 @@ const AdminFoods = () => {
         category1: foodForm.category1,
         category2: foodForm.category2,
         imageUrl: foodForm.imageUrl
-        // Removed starRating
       };
 
       console.log("Sending data:", foodData);
@@ -173,22 +181,54 @@ const AdminFoods = () => {
     }
   };
 
+  // Filter foods for display
+  const filteredFoods = foods.filter(food => {
+    const matchesSearch = food.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !categoryFilter || food.category1 === categoryFilter;
+    const matchesRating = (food.starRating || 0) >= minRating;
+    return matchesSearch && matchesCategory && matchesRating;
+  });
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 pt-24">
-      <div className="bg-white/30 backdrop-blur-md border border-white/40 shadow-lg rounded-lg p-10 w-full max-w-5xl">
+      <div className="bg-white/30 backdrop-blur-md border border-white/40 shadow-lg rounded-lg p-10 w-full max-w-7xl">
         <h2 className="text-3xl font-bold text-orange-700 mb-8">Food Management</h2>
-        {/* Star Rating Filter */}
-        <div className="mb-6 flex items-center gap-4">
-          <label className="font-semibold text-orange-700">Min Star Rating:</label>
-          <select
-            value={minRating}
-            onChange={e => setMinRating(Number(e.target.value))}
-            className="px-3 py-1 border rounded"
-          >
-            {[0,1,2,3,4,5].map(r => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
+        {/* Filter Bar */}
+        <div className="mb-6 flex flex-col md:flex-row items-center gap-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search by name..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border rounded"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="font-semibold text-orange-700">Category:</label>
+            <select
+              value={categoryFilter}
+              onChange={e => setCategoryFilter(e.target.value)}
+              className="px-3 py-1 border rounded"
+            >
+              <option value="">All</option>
+              {CATEGORY1_OPTIONS.map(opt => (
+                <option key={opt} value={opt}>{opt.charAt(0).toUpperCase() + opt.slice(1)}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="font-semibold text-orange-700">Min Star Rating:</label>
+            <select
+              value={minRating}
+              onChange={e => setMinRating(Number(e.target.value))}
+              className="px-3 py-1 border rounded"
+            >
+              {[0,1,2,3,4,5].map(r => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
           <button
             className="ml-auto px-6 py-2 bg-yellow-500/80 text-white font-bold rounded-lg shadow hover:bg-yellow-600 transition"
             onClick={() => openModal()}
@@ -212,7 +252,7 @@ const AdminFoods = () => {
               </tr>
             </thead>
             <tbody>
-              {foods.map((food) => (
+              {filteredFoods.map((food) => (
                 <tr key={food._id} className="border-b border-white/40">
                   <td className="px-4 py-2">{food.name}</td>
                   <td className="px-4 py-2">LKR {food.price}</td>
@@ -227,7 +267,11 @@ const AdminFoods = () => {
                     ))}
                     <span className="ml-1 text-sm">{food.starRating ? food.starRating.toFixed(1) : '0.0'}</span>
                   </td>
-                  <td className="px-4 py-2">{food.numReviews || 0}</td>
+                  <td className="px-4 py-2">
+                    <span className="text-gray-700 font-medium">
+                      {food.numReviews || 0}
+                    </span>
+                  </td>
                   <td className="px-4 py-2">
                     <button
                       className="mr-2 px-3 py-1 bg-yellow-500/80 text-white rounded hover:bg-yellow-600"
@@ -314,7 +358,10 @@ const AdminFoods = () => {
                 onChange={handleImageChange} 
                 className="w-full px-4 py-2 border rounded" 
               />
-              {foodForm.imageUrl && (
+              {imageUploading && (
+                <div className="text-center text-yellow-700 font-semibold">Uploading image...</div>
+              )}
+              {foodForm.imageUrl && !foodForm.imageUrl.startsWith('blob:') && (
                 <div className="flex justify-center">
                   <img src={foodForm.imageUrl} alt="Preview" className="w-24 h-24 object-cover rounded" />
                 </div>
@@ -330,6 +377,7 @@ const AdminFoods = () => {
               <button 
                 type="submit" 
                 className="w-full py-2 bg-yellow-500/80 text-white font-bold rounded hover:bg-yellow-600"
+                disabled={imageUploading}
               >
                 {editMode ? "Update" : "Add"}
               </button>

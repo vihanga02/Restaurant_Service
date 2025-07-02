@@ -12,6 +12,10 @@ const FoodDetails = () => {
     const [quantity, setQuantity] = useState(1);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [reviewStars, setReviewStars] = useState(0);
+    const [reviewComment, setReviewComment] = useState("");
+    const [reviewLoading, setReviewLoading] = useState(false);
+    const [reviewError, setReviewError] = useState("");
 
     useEffect(() => {
         const fetchFoodDetails = async () => {
@@ -85,6 +89,32 @@ const FoodDetails = () => {
             }
         } catch (err) {
             toast.error('Failed to update favorites');
+        }
+    };
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        setReviewError("");
+        if (reviewStars < 0 || reviewStars > 5) {
+            setReviewError("Please select a star rating between 0 and 5.");
+            return;
+        }
+        setReviewLoading(true);
+        try {
+            await axios.post(`http://localhost:8000/api/foods/${id}/review`, {
+                stars: reviewStars,
+                comment: reviewComment
+            }, { withCredentials: true });
+            setReviewStars(0);
+            setReviewComment("");
+            setReviewLoading(false);
+            toast.success("Review submitted!");
+            // Refresh food details
+            const response = await axios.get(`http://localhost:8000/api/foods/${id}`);
+            setFood(response.data);
+        } catch (err) {
+            setReviewLoading(false);
+            setReviewError(err.response?.data?.error || "Failed to submit review.");
         }
     };
 
@@ -169,6 +199,40 @@ const FoodDetails = () => {
                     </ul>
                 ) : (
                     <div className="text-gray-500 italic">No reviews yet.</div>
+                )}
+                {/* Review Form for logged-in users */}
+                {isLoggedIn && (
+                    <form onSubmit={handleReviewSubmit} className="mt-8 p-4 bg-white/80 rounded shadow space-y-4">
+                        <h3 className="text-lg font-bold text-orange-700 mb-2">Add Your Review</h3>
+                        <div className="flex items-center gap-2">
+                            <label className="font-semibold">Your Rating:</label>
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <button
+                                    type="button"
+                                    key={i}
+                                    className={i < reviewStars ? 'text-yellow-500 text-2xl' : 'text-gray-300 text-2xl'}
+                                    onClick={() => setReviewStars(i + 1)}
+                                    aria-label={`Rate ${i + 1} stars`}
+                                >★</button>
+                            ))}
+                            <span className="ml-2 text-sm">{reviewStars} / 5</span>
+                        </div>
+                        <textarea
+                            className="w-full px-3 py-2 border rounded"
+                            placeholder="Write your comment (optional)"
+                            value={reviewComment}
+                            onChange={e => setReviewComment(e.target.value)}
+                            rows={3}
+                        />
+                        {reviewError && <div className="text-red-600 text-sm">{reviewError}</div>}
+                        <button
+                            type="submit"
+                            className="px-6 py-2 bg-yellow-600 text-white font-bold rounded hover:bg-yellow-700"
+                            disabled={reviewLoading}
+                        >
+                            {reviewLoading ? "Submitting..." : "Submit Review"}
+                        </button>
+                    </form>
                 )}
             </div>
         </div>
