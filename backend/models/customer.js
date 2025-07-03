@@ -9,7 +9,13 @@ const customerSchema = new mongoose.Schema({
     favourites: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Food' 
-    }]
+    }],
+    // Stripe payment details
+    stripeCustomerId: { type: String },
+    cardLast4: { type: String },
+    cardBrand: { type: String },
+    cardExpMonth: { type: String },
+    cardExpYear: { type: String }
 });
 
 module.exports = mongoose.model('Customer', customerSchema);

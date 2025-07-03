@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from 'react-router-dom';
 
 const CustomerOrders = () => {
     const [customerDetails, setCustomerDetails] = useState(null);
@@ -9,6 +10,12 @@ const CustomerOrders = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [favorites, setFavorites] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalOrders, setTotalOrders] = useState(0);
+    const navigate = useNavigate();
+    const [editing, setEditing] = useState(false);
+    const [editPhone, setEditPhone] = useState("");
+    const [editAddress, setEditAddress] = useState("");
 
     useEffect(() => {
         const fetchCustomerData = async () => {
@@ -18,6 +25,8 @@ const CustomerOrders = () => {
                     .get("http://localhost:8000/api/customers/profile", { withCredentials: true })
                     .then((response) => {
                         setCustomerDetails(response.data.customer);
+                        setEditPhone(response.data.customer.phone || "");
+                        setEditAddress(response.data.customer.address || "");
                     })
                     .catch((err) => {
                         console.error("Error fetching customer data:", err);
@@ -35,21 +44,14 @@ const CustomerOrders = () => {
                         setError("Failed to load favorites. Please try again later.");
                     });
 
-                // Fetch customer orders
-                axios
-                    .get(`http://localhost:8000/api/orders/customer/`, { withCredentials: true })
-                    .then((response1) => {
-                        // Filter orders with status "Paid" or "Pending"
-                        const filteredOrders = response1.data.filter(
-                            (order) => order.status === "Paid" || order.status === "Pending"
-                        );
-                        setOrders(filteredOrders);
-                    })
-                    .catch((err) => {
-                        console.error("Error fetching customer orders:", err);
-                        setError("Failed to load data. Please try again later.");
-                    });
-
+                // Fetch first page of orders
+                const response1 = await axios.get(`http://localhost:8000/api/orders/customer/paginated?page=1&limit=3`, { withCredentials: true });
+                const filteredOrders = response1.data.orders.filter(
+                    (order) => order.status === "Paid" || order.status === "Pending"
+                );
+                setOrders(filteredOrders);
+                setTotalOrders(response1.data.totalOrders);
+                setPage(1);
                 setLoading(false);
             } catch (err) {
                 console.error("Error fetching customer data:", err);
@@ -61,24 +63,8 @@ const CustomerOrders = () => {
         fetchCustomerData();
     }, []);
 
-    const handleCheckout = async (orderId) => {
-        try {
-            const response = await axios.post(
-                `http://localhost:8000/api/orders/paid/${orderId}`,
-                {},
-                { withCredentials: true }
-            );
-
-            toast.success("Checkout successful!");
-            setOrders((prevOrders) =>
-                prevOrders.map((order) =>
-                    order._id === orderId ? { ...order, status: "Paid" } : order
-                )
-            );
-        } catch (err) {
-            console.error("Error during checkout:", err);
-            toast.error("Failed to complete checkout. Please try again.");
-        }
+    const handleCheckout = (orderId) => {
+        navigate(`/checkout?orderId=${orderId}`);
     };
 
     const handleCancelOrder = async (orderId) => {
@@ -94,6 +80,57 @@ const CustomerOrders = () => {
             console.error("Error during order cancellation:", err);
             toast.error("Failed to cancel order. Please try again.");
         }
+    };
+
+    const handleLoadMore = async () => {
+        setLoading(true);
+        try {
+            const nextPage = page + 1;
+            const response = await axios.get(`http://localhost:8000/api/orders/customer/paginated?page=${nextPage}&limit=3`, { withCredentials: true });
+            const filteredOrders = response.data.orders.filter(
+                (order) => order.status === "Paid" || order.status === "Pending"
+            );
+            setOrders((prev) => [...prev, ...filteredOrders]);
+            setPage(nextPage);
+        } catch (err) {
+            setError("Failed to load more orders. Please try again later.");
+        }
+        setLoading(false);
+    };
+
+    const handleEdit = () => {
+        setEditing(true);
+    };
+
+    const handleCancelEdit = () => {
+        setEditing(false);
+        setEditPhone(customerDetails.phone || "");
+        setEditAddress(customerDetails.address || "");
+    };
+
+    const handleSaveEdit = async () => {
+        try {
+            const response = await axios.patch(
+                "http://localhost:8000/api/customers/profile",
+                { phone: editPhone, address: editAddress },
+                { withCredentials: true }
+            );
+            setCustomerDetails((prev) => ({ ...prev, phone: editPhone, address: editAddress }));
+            setEditing(false);
+            toast.success("Profile updated successfully!");
+        } catch (err) {
+            console.error("Error updating profile:", err);
+            toast.error("Failed to update profile. Please try again.");
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:8000/api/customers/logout", {}, { withCredentials: true });
+        } catch (err) {
+            // Even if logout fails, clear session and redirect
+        }
+        navigate("/login");
     };
 
     if (loading) {
@@ -119,12 +156,63 @@ const CustomerOrders = () => {
                     <p className="text-gray-800 mb-3">
                         <strong>Email:</strong> {customerDetails.email}
                     </p>
-                    <p className="text-gray-800 mb-3">
-                        <strong>Phone:</strong> {customerDetails.phone}
+                    <p className="text-gray-800 mb-3 flex items-center">
+                        <strong>Phone:</strong>
+                        {editing ? (
+                            <input
+                                type="text"
+                                className="ml-2 border rounded px-2 py-1"
+                                value={editPhone}
+                                onChange={e => setEditPhone(e.target.value)}
+                            />
+                        ) : (
+                            <span className="ml-2">{customerDetails.phone}</span>
+                        )}
                     </p>
-                    <p className="text-gray-800 mb-3">
-                        <strong>Address:</strong> {customerDetails.address}
+                    <p className="text-gray-800 mb-3 flex items-center">
+                        <strong>Address:</strong>
+                        {editing ? (
+                            <input
+                                type="text"
+                                className="ml-2 border rounded px-2 py-1 w-full"
+                                value={editAddress}
+                                onChange={e => setEditAddress(e.target.value)}
+                            />
+                        ) : (
+                            <span className="ml-2">{customerDetails.address}</span>
+                        )}
                     </p>
+                    <div className="flex gap-4 mt-4">
+                        {editing ? (
+                            <>
+                                <button
+                                    onClick={handleSaveEdit}
+                                    className="px-4 py-2 bg-green-500 text-white font-bold rounded-lg hover:bg-green-600 transition"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    onClick={handleCancelEdit}
+                                    className="px-4 py-2 bg-gray-400 text-white font-bold rounded-lg hover:bg-gray-500 transition"
+                                >
+                                    Cancel
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={handleEdit}
+                                className="px-4 py-2 bg-yellow-500/60 text-white font-bold rounded-lg hover:bg-yellow-600 transition"
+                            >
+                                Edit
+                            </button>
+                        )}
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition ml-auto"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -205,6 +293,16 @@ const CustomerOrders = () => {
                                 </div>
                             </div>
                         ))}
+                        {orders.length < totalOrders && (
+                            <div className="flex justify-center mt-6">
+                                <button
+                                    onClick={handleLoadMore}
+                                    className="px-6 py-2 bg-yellow-500 text-white font-bold rounded-lg hover:bg-yellow-600 transition"
+                                >
+                                    Load More
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

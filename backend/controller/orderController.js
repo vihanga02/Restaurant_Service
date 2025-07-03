@@ -110,3 +110,47 @@ exports.getPendingOrderCount = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch pending order count' });
   }
 };
+
+// Get last 3 orders for a customer
+exports.getLastThreeOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ customerId: req.user.id })
+      .sort({ orderedAt: -1 })
+      .limit(3)
+      .populate('foodItems.item');
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch last 3 orders' });
+  }
+};
+
+// Get paginated orders for a customer
+exports.getCustomerOrdersPaginated = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 3;
+    const skip = (page - 1) * limit;
+    const orders = await Order.find({ customerId: req.user.id })
+      .sort({ orderedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('foodItems.item');
+    const totalOrders = await Order.countDocuments({ customerId: req.user.id });
+    res.status(200).json({ orders, totalOrders });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch paginated orders' });
+  }
+};
+
+// Get order by ID
+exports.getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('foodItems.item');
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    res.status(200).json(order);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch order details' });
+  }
+};

@@ -11,6 +11,7 @@ exports.adminLogin = async (req, res) => {
         const admin = await Admin.findOne({ email });
         if (!admin) {
             return res.status(401).json({ error: 'Invalid email or password' });
+            
         }
 
         const isMatch = await bcrypt.compare(password, admin.password);
@@ -18,10 +19,18 @@ exports.adminLogin = async (req, res) => {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
 
-        const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: admin._id, role: "Admin" }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+        });
+
         res.status(200).json({ token });
     } catch (err) {
         res.status(500).json({ error: 'Failed to login' });
+
     }
 };
 
@@ -55,5 +64,32 @@ exports.getAllCustomers = async (req, res) => {
     res.status(200).json(customers);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch customers' });
+  }
+};
+
+// Admin register
+exports.adminRegister = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newAdmin = new Admin({ name, email, password: hashedPassword });
+        await newAdmin.save();
+        res.status(201).json({ admin: newAdmin });
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({ error: 'Failed to register admin' });
+    }
+};
+
+// Check admin login status
+exports.checkLogin = async (req, res) => {
+  try {
+    if (req.user && req.user.role === 'Admin') {
+      return res.status(200).json({ success: true });
+    } else {
+      return res.status(401).json({ success: false });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to check login status' });
   }
 };
