@@ -4,6 +4,7 @@ import home1 from "../assets/home1.jpg";
 import home2 from "../assets/home2.jpg";
 import home3 from "../assets/home3.jpg";
 import FoodCard from "../components/FoodCard";
+import ChatBot from "../components/ChatBot";
 import axios from "axios";
 
 const Home = () => {
@@ -84,6 +85,7 @@ const Home = () => {
                     </p>
                 </div>
             </div>
+            <ChatBot />
         </div>
     );
 }
