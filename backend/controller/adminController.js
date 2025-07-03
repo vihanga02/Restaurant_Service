@@ -18,8 +18,14 @@ exports.adminLogin = async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
-  
-        const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        const token = jwt.sign({ id: admin._id, role: "Admin" }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+        });
 
         res.status(200).json({ token });
     } catch (err) {
@@ -73,4 +79,17 @@ exports.adminRegister = async (req, res) => {
         console.log(err);
         res.status(400).json({ error: 'Failed to register admin' });
     }
+};
+
+// Check admin login status
+exports.checkLogin = async (req, res) => {
+  try {
+    if (req.user && req.user.role === 'Admin') {
+      return res.status(200).json({ success: true });
+    } else {
+      return res.status(401).json({ success: false });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to check login status' });
+  }
 };

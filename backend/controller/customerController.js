@@ -80,6 +80,7 @@ exports.loginCustomer = async (req, res) => {
       secure: true,
       sameSite: "none",
     });
+    
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to login' });

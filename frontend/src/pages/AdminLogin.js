@@ -91,7 +91,7 @@ const AdminLogin = () => {
                 </form>
 
                 <p className="text-center text-gray-600 mt-4">
-                    Don't have an admin account? <a href="/adminsignup" className="text-yellow-600 font-bold">Sign Up</a>
+                    Don't have an admin account? <a href="/admin/signup" className="text-yellow-600 font-bold">Sign Up</a>
                 </p>
             </div>
         </div>
