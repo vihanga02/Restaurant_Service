@@ -15,12 +15,16 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FoodDetails from "./pages/FoodDetail";
 import UserPage from "./pages/Userpage";
+import Checkout from "./pages/Checkout";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminPanel from "./pages/AdminPanel";
 import AdminUsers from "./pages/AdminUsers";
 import AdminOrders from "./pages/AdminOrders";
 import AdminFoods from "./pages/AdminFoods";
+import AdminSignup from "./pages/AdminSignup";
+import AdminLogin from "./pages/AdminLogin";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -32,7 +36,7 @@ function App() {
 
 function AppContent() {
   const location = useLocation();
-  const hideNavbarFooter = location.pathname === "/login" || location.pathname === "/signup";
+  const hideNavbarFooter = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/admin/login";
 
   return (
     <>
@@ -53,10 +57,13 @@ function AppContent() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/food-details/:id" element={<FoodDetails />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
-            <Route path="/admin/foods" element={<AdminFoods />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/admin" element={<ProtectedRoute requiredRole="Admin"><AdminPanel /></ProtectedRoute>} />
+            <Route path="/admin/signup" element={<ProtectedRoute requiredRole="Admin"><AdminSignup /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute requiredRole="Admin"><AdminUsers /></ProtectedRoute>} />
+            <Route path="/admin/orders" element={<ProtectedRoute requiredRole="Admin"><AdminOrders /></ProtectedRoute>} />
+            <Route path="/admin/foods" element={<ProtectedRoute requiredRole="Admin"><AdminFoods /></ProtectedRoute>} />
+            <Route path="/admin/login" element={<AdminLogin />} />
           </Routes>
         </main>
         <ToastContainer position="top-right" autoClose={3000} />
