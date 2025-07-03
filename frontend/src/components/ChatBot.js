@@ -39,15 +39,29 @@ export default function ChatBot() {
 
   return (
     <>
-      {/* Chat Toggle Button */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 bg-orange-500/80 text-white py-3 px-6 rounded-full shadow-lg hover:bg-orange-600/85 transition-colors z-50"
-      >
-        💬
-      </button>
+    /* Chat Toggle Button */
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="fixed bottom-4 right-4 bg-orange-500/80 text-white py-3 px-6 rounded-full shadow-lg hover:bg-orange-600/85 transition-colors z-50"
+        >
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+            d="M8 10H16M8 14H16M6 20L18 20C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            />
+          </svg>
+        </button>
 
-      {/* Chat Window */}
+        {/* Chat Window */}
       {isOpen && (
         <div className="fixed bottom-20 right-4 w-80 h-96 bg-white/30 backdrop-blur-md border border-white/40 rounded-lg shadow-lg z-50 flex flex-col">
           {/* Header */}
